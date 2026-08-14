@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Live synthetic BESS telemetry and quality lab">
+  <title>GridPulse Lab</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">OPEN ENERGY OPERATIONS LAB</p>
+      <h1>GridPulse <span>Lab</span></h1>
+    </div>
+    <div class="system-state"><i></i><span>Simulator online</span></div>
+  </header>
+
+  <main>
+    <section class="summary" aria-label="Fleet summary">
+      <article><p>Fleet output</p><strong id="fleet-output">—</strong><small>MW</small></article>
+      <article><p>Average SOC</p><strong id="average-soc">—</strong><small>%</small></article>
+      <article><p>Healthy points</p><strong id="healthy-points">—</strong><small>signals</small></article>
+      <article><p>Attention</p><strong id="attention-points">—</strong><small>signals</small></article>
+    </section>
+
+    <section class="section-heading">
+      <div><p class="eyebrow">REAL-TIME VIEW</p><h2>Storage fleet</h2></div>
+      <p id="last-updated">Waiting for telemetry…</p>
+    </section>
+    <section id="asset-grid" class="asset-grid" aria-live="polite"></section>
+
+    <section class="section-heading alarm-heading">
+      <div><p class="eyebrow">EVENT CONSOLE</p><h2>Active alarms</h2></div>
+    </section>
+    <section id="alarm-list" class="alarm-list" aria-live="polite">
+      <p class="empty-state">No active alarms</p>
+    </section>
+
+    <section class="lab-panel">
+      <div>
+        <p class="eyebrow">FAULT INJECTION</p>
+        <h2>Incident laboratory</h2>
+        <p>Introduce a controlled telemetry fault and observe its quality state.</p>
+      </div>
+      <form id="incident-form">
+        <label>Asset<select id="incident-asset" required></select></label>
+        <label>Scenario<select id="incident-kind" required>
+          <option value="stale">Stale telemetry</option>
+          <option value="bad_frequency">Frequency excursion</option>
+          <option value="missing_soc">Missing SOC</option>
+          <option value="high_temperature">High temperature</option>
+        </select></label>
+        <button type="submit">Inject incident</button>
+        <button type="button" class="secondary" id="clear-incidents">Clear all</button>
+      </form>
+    </section>
+  </main>
+
+  <footer>Synthetic data only · Built for learning and open-source experimentation</footer>
+  <script src="/app.js" defer></script>
+</body>
+</html>
