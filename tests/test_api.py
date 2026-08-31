@@ -21,15 +21,21 @@ class ApiTests(unittest.TestCase):
         cls.server.server_close()
         cls.thread.join()
 
-    def request(self, method, path, payload=None):
+    def raw_request(self, method, path, payload=None):
         connection = HTTPConnection("127.0.0.1", self.port)
         body = json.dumps(payload) if payload is not None else None
         headers = {"Content-Type": "application/json"} if body else {}
         connection.request(method, path, body=body, headers=headers)
         response = connection.getresponse()
         content = response.read()
+        status = response.status
+        content_type = response.getheader("Content-Type")
         connection.close()
-        return response.status, json.loads(content) if content else {}
+        return status, content_type, content
+
+    def request(self, method, path, payload=None):
+        status, _, content = self.raw_request(method, path, payload)
+        return status, json.loads(content) if content else {}
 
     def test_health_endpoint(self):
         status, body = self.request("GET", "/api/v1/health")
@@ -46,6 +52,18 @@ class ApiTests(unittest.TestCase):
         self.assertIn(body["assets"][0]["progression"]["status"], {
             "progressing", "unchanged", "frozen"
         })
+
+    def test_metrics_endpoint(self):
+        status, content_type, content = self.raw_request("GET", "/metrics")
+        text = content.decode()
+        self.assertEqual(200, status)
+        self.assertIn("text/plain", content_type)
+        self.assertIn("gridpulse_telemetry_age_seconds", text)
+        self.assertIn("gridpulse_active_alarms", text)
+        self.assertIn("gridpulse_active_incidents", text)
+        self.assertIn("gridpulse_quality_points", text)
+        self.assertIn("gridpulse_progression_state", text)
+        self.assertIn('asset_id="aurora-1"', text)
 
     def test_create_and_clear_incident(self):
         status, _ = self.request("POST", "/api/v1/incidents", {
