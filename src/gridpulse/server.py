@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 
 from .alarms import derive_alarms
 from .incidents import IncidentController, IncidentType
+from .metrics import render_metrics
 from .models import utc_now
 from .progression import ProgressionEngine
 from .quality import QualityEngine
@@ -24,7 +25,7 @@ class Application:
         self.quality = QualityEngine()
         self.progression = ProgressionEngine()
 
-    def telemetry(self) -> dict:
+    def _snapshot(self):
         now = utc_now()
         assets = self.simulator.snapshot(now)
         self.incidents.apply(assets)
@@ -32,14 +33,15 @@ class Application:
         for asset in assets:
             self.quality.evaluate(asset, now)
             progression[asset.asset_id] = self.progression.evaluate(asset, now)
-        alarms = derive_alarms(assets)
+        return now, assets, progression, derive_alarms(assets)
 
+    def telemetry(self) -> dict:
+        now, assets, progression, alarms = self._snapshot()
         payload_assets = []
         for asset in assets:
             payload = asset.to_dict()
             payload["progression"] = progression[asset.asset_id]
             payload_assets.append(payload)
-
         return {
             "generated_at": now.isoformat(),
             "quality_summary": self.quality.summary(assets),
@@ -47,6 +49,16 @@ class Application:
             "alarms": [alarm.to_dict() for alarm in alarms],
             "assets": payload_assets,
         }
+
+    def metrics(self) -> str:
+        now, assets, progression, alarms = self._snapshot()
+        return render_metrics(
+            assets,
+            progression,
+            alarm_count=len(alarms),
+            incident_count=len(self.incidents.list()),
+            now=now,
+        )
 
     @staticmethod
     def _progression_summary(progression: dict[str, dict[str, object]]) -> dict[str, int]:
@@ -68,6 +80,8 @@ class GridPulseHandler(BaseHTTPRequestHandler):
             self._json({"status": "ok", "service": "gridpulse-lab"})
         elif path == "/api/v1/telemetry":
             self._json(APP.telemetry())
+        elif path == "/metrics":
+            self._text(APP.metrics(), "text/plain; version=0.0.4; charset=utf-8")
         elif path == "/api/v1/incidents":
             self._json({"incidents": [
                 {"asset_id": item.asset_id, "kind": item.kind.value}
@@ -114,6 +128,14 @@ class GridPulseHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _text(self, payload: str, content_type: str) -> None:
+        body = payload.encode()
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
 

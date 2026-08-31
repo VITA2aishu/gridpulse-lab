@@ -1,6 +1,6 @@
 # API reference
 
-The development server exposes a small JSON API under `/api/v1`.
+The development server exposes JSON endpoints under `/api/v1` plus a dependency-free Prometheus endpoint at `/metrics`.
 
 ## `GET /health`
 
@@ -29,19 +29,33 @@ Progression values:
 | `unchanged` | The observation timestamp has not advanced yet, but is still inside the configured freeze window |
 | `frozen` | The observation timestamp has failed to advance beyond the configured freeze window |
 
-Example asset progression payload:
-
-```json
-{
-  "status": "progressing",
-  "last_observation_at": "2026-08-31T23:40:00+00:00",
-  "seconds_since_progress": 0.0,
-  "frozen_after_seconds": 10.0
-}
-```
-
 Progression is based on observation timestamps rather than value changes. A measurement can therefore
 remain numerically constant and still be considered healthy when fresh observations continue to arrive.
+
+## `GET /metrics`
+
+Returns Prometheus text exposition format without requiring the Prometheus Python client.
+
+Metrics:
+
+| Metric | Meaning |
+|---|---|
+| `gridpulse_telemetry_age_seconds` | Age of the newest observation for each fictional asset |
+| `gridpulse_active_alarms` | Number of active derived alarms |
+| `gridpulse_active_incidents` | Number of active synthetic incidents |
+| `gridpulse_quality_points` | Telemetry point count grouped by quality state |
+| `gridpulse_progression_state` | One-hot progression state for each asset |
+
+Example:
+
+```text
+# TYPE gridpulse_active_alarms gauge
+gridpulse_active_alarms 0
+gridpulse_telemetry_age_seconds{asset_id="aurora-1",region="North"} 0.0
+gridpulse_progression_state{asset_id="aurora-1",status="progressing"} 1
+```
+
+The labels intentionally use a small, bounded set of fictional asset IDs and states to avoid unnecessary metric cardinality.
 
 ## `POST /incidents`
 
@@ -63,4 +77,3 @@ that appears present but has stopped advancing.
 ## `DELETE /incidents/{asset_id}`
 
 Clear the active incident for an asset.
-
