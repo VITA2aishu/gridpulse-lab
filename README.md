@@ -21,6 +21,11 @@ room. GridPulse Lab makes the important concepts reproducible on a laptop:
 - alarm lifecycle and incident injection;
 - a live operations dashboard and documented JSON API.
 
+The longer-term health model goes beyond service uptime and focuses on five
+signals: **freshness, progression, connectivity, processing lag and data
+quality**. See the [public roadmap](ROADMAP.md) for planned releases and
+contribution opportunities.
+
 ## Quick start
 
 ```bash
@@ -44,6 +49,11 @@ PYTHONPATH=src python -m unittest discover -s tests -v
 The first release includes a live three-asset fleet, four injectable incidents,
 quality evaluation, derived alarms, a responsive dashboard and automated tests.
 
+The next release focuses on detecting silent data failures, including frozen
+streams, delayed processing and combined data-health scoring. See the
+[open issues](https://github.com/VITA2aishu/gridpulse-lab/issues) if you would
+like to contribute.
+
 ## API
 
 | Endpoint | Purpose |
@@ -58,11 +68,13 @@ See the [API reference](docs/api.md) and [architecture](docs/architecture.md).
 
 ## Roadmap
 
+- data-health scoring across freshness, progression, connectivity, lag and quality;
 - time-series history and incident replay;
-- configurable custom assets;
 - optional Prometheus metrics exporter;
-- battery efficiency and degradation models;
+- configurable fictional assets;
 - community-contributed training scenarios.
+
+Full details are tracked in [ROADMAP.md](ROADMAP.md).
 
 Contributions are welcome. Start with the safety requirements and suggested
 beginner issues in [CONTRIBUTING.md](CONTRIBUTING.md).
