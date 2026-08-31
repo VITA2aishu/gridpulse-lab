@@ -41,6 +41,11 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(200, status)
         self.assertEqual(3, len(body["assets"]))
         self.assertIn("quality_summary", body)
+        self.assertIn("progression_summary", body)
+        self.assertIn("progression", body["assets"][0])
+        self.assertIn(body["assets"][0]["progression"]["status"], {
+            "progressing", "unchanged", "frozen"
+        })
 
     def test_create_and_clear_incident(self):
         status, _ = self.request("POST", "/api/v1/incidents", {
@@ -49,6 +54,15 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(201, status)
         status, body = self.request("GET", "/api/v1/incidents")
         self.assertEqual("missing_soc", body["incidents"][0]["kind"])
+        status, _ = self.request("DELETE", "/api/v1/incidents/aurora-1")
+        self.assertEqual(204, status)
+
+    def test_frozen_stream_incident_is_supported(self):
+        status, body = self.request("POST", "/api/v1/incidents", {
+            "asset_id": "aurora-1", "kind": "frozen_stream"
+        })
+        self.assertEqual(201, status)
+        self.assertEqual("frozen_stream", body["kind"])
         status, _ = self.request("DELETE", "/api/v1/incidents/aurora-1")
         self.assertEqual(204, status)
 
