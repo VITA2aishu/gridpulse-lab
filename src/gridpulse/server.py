@@ -12,6 +12,7 @@ from urllib.parse import urlparse
 from .alarms import derive_alarms
 from .incidents import IncidentController, IncidentType
 from .models import utc_now
+from .progression import ProgressionEngine
 from .quality import QualityEngine
 from .simulator import FleetSimulator
 
@@ -21,20 +22,38 @@ class Application:
         self.simulator = FleetSimulator()
         self.incidents = IncidentController()
         self.quality = QualityEngine()
+        self.progression = ProgressionEngine()
 
     def telemetry(self) -> dict:
         now = utc_now()
         assets = self.simulator.snapshot(now)
         self.incidents.apply(assets)
+        progression = {}
         for asset in assets:
             self.quality.evaluate(asset, now)
+            progression[asset.asset_id] = self.progression.evaluate(asset, now)
         alarms = derive_alarms(assets)
+
+        payload_assets = []
+        for asset in assets:
+            payload = asset.to_dict()
+            payload["progression"] = progression[asset.asset_id]
+            payload_assets.append(payload)
+
         return {
             "generated_at": now.isoformat(),
             "quality_summary": self.quality.summary(assets),
+            "progression_summary": self._progression_summary(progression),
             "alarms": [alarm.to_dict() for alarm in alarms],
-            "assets": [asset.to_dict() for asset in assets],
+            "assets": payload_assets,
         }
+
+    @staticmethod
+    def _progression_summary(progression: dict[str, dict[str, object]]) -> dict[str, int]:
+        counts = {"progressing": 0, "unchanged": 0, "frozen": 0}
+        for item in progression.values():
+            counts[str(item["status"])] += 1
+        return counts
 
 
 APP = Application()
