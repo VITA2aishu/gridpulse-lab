@@ -4,10 +4,9 @@ Thank you for helping make real-time telemetry and grid-operations concepts more
 
 ## Start here
 
-If this is your first contribution, pick one open issue labeled [`good first issue`](https://github.com/VITA2aishu/gridpulse-lab/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22). Current examples include:
+If this is your first contribution, browse the open [`good first issue`](https://github.com/VITA2aishu/gridpulse-lab/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) tasks. One current starter task is:
 
 - [#13 — Add exporter unit tests for escaping metric labels](https://github.com/VITA2aishu/gridpulse-lab/issues/13)
-- [#14 — Document example PromQL queries](https://github.com/VITA2aishu/gridpulse-lab/issues/14)
 
 Comment on the issue before starting if you want to confirm the approach or scope.
 
