@@ -1,0 +1,38 @@
+groups:
+  - name: gridpulse-telemetry-health
+    rules:
+      - alert: GridPulseTelemetryStale
+        expr: gridpulse_telemetry_age_seconds > 15
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Synthetic telemetry is stale for {{ $labels.asset_id }}"
+          description: "Telemetry age has exceeded the demo threshold for {{ $labels.asset_id }}."
+
+      - alert: GridPulseStreamFrozen
+        expr: gridpulse_progression_state{status="frozen"} == 1
+        for: 15s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Synthetic telemetry stream is frozen for {{ $labels.asset_id }}"
+          description: "GridPulse has detected a stream whose timestamps are no longer advancing."
+
+      - alert: GridPulseActiveAlarm
+        expr: gridpulse_active_alarms > 0
+        for: 15s
+        labels:
+          severity: warning
+        annotations:
+          summary: "GridPulse has active derived alarms"
+          description: "At least one derived alarm is active in the fictional fleet."
+
+      - alert: GridPulseProcessingLagHigh
+        expr: gridpulse_processing_lag_seconds > 10
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Synthetic processing lag is elevated for {{ $labels.asset_id }}"
+          description: "Processing lag has exceeded the demonstration threshold for {{ $labels.asset_id }}."
