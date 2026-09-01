@@ -27,6 +27,15 @@ signals: **freshness, progression, connectivity, processing lag and data
 quality**. See the [public roadmap](ROADMAP.md) for planned releases and
 contribution opportunities.
 
+## Dashboard preview
+
+![GridPulse Lab telemetry-health dashboard](docs/images/gridpulse-dashboard-preview.svg)
+
+The starter Grafana dashboard visualizes telemetry age, active alarms, synthetic
+incidents, point quality, and progression state for the fictional fleet. The
+preview is illustrative; live values come from the `/metrics` endpoint when the
+lab is running.
+
 ## Quick start
 
 ```bash
