@@ -59,6 +59,7 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(200, status)
         self.assertIn("text/plain", content_type)
         self.assertIn("gridpulse_telemetry_age_seconds", text)
+        self.assertIn("gridpulse_processing_lag_seconds", text)
         self.assertIn("gridpulse_active_alarms", text)
         self.assertIn("gridpulse_active_incidents", text)
         self.assertIn("gridpulse_quality_points", text)
