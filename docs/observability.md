@@ -17,10 +17,21 @@ curl http://127.0.0.1:8080/metrics
 You should see metrics including:
 
 - `gridpulse_telemetry_age_seconds`
+- `gridpulse_processing_lag_seconds`
 - `gridpulse_active_alarms`
 - `gridpulse_active_incidents`
 - `gridpulse_quality_points`
 - `gridpulse_progression_state`
+
+## Freshness, progression, and processing lag
+
+These signals answer different operational questions:
+
+- **Freshness:** how old is the newest source observation?
+- **Progression:** are observation timestamps continuing to advance?
+- **Processing lag:** how much time elapsed between the newest observation and the application's processing time?
+
+Keeping processing lag separate prevents an application-side delay from being described as a source-data freshness problem. In this lab the measurement is deterministic, dependency-free, and based only on generated telemetry.
 
 ## 2. Scrape with Prometheus
 
@@ -32,22 +43,7 @@ Run Prometheus with that configuration using your preferred local installation. 
 
 Import [`examples/grafana/gridpulse-telemetry-health.json`](../examples/grafana/gridpulse-telemetry-health.json) in Grafana and select the Prometheus data source that is scraping GridPulse Lab.
 
-The starter dashboard includes:
-
-- telemetry age by fictional asset;
-- active derived alarms;
-- active synthetic incidents;
-- frozen progression state;
-- telemetry point counts by quality;
-- one-hot progression state for progressing, unchanged, and frozen feeds.
-
-## Why freshness and progression are separate
-
-Telemetry age answers: **How old is the newest observation?**
-
-Progression answers: **Are new observations still arriving?**
-
-A value may legitimately stay numerically constant while fresh observations continue. GridPulse Lab therefore detects progression from observation timestamps, not from value changes.
+The starter dashboard includes telemetry age, alarms, synthetic incidents, frozen progression state, quality, and progression state for fictional assets.
 
 ## Try a frozen feed
 
@@ -59,7 +55,7 @@ curl -X POST http://127.0.0.1:8080/api/v1/incidents \
   -d '{"asset_id":"aurora-1","kind":"frozen_stream"}'
 ```
 
-After the configured progression window elapses, the dashboard can show the asset as frozen while telemetry-age metrics continue to make the source age visible.
+After the configured progression window elapses, the dashboard can show the asset as frozen while telemetry-age and processing-lag metrics make timing visible.
 
 Clear the incident with:
 
