@@ -90,28 +90,28 @@ Prometheus-format metrics are available at:
 http://127.0.0.1:8080/metrics
 ```
 
-A starter Prometheus scrape file and an importable Grafana dashboard live under
-[`examples/`](examples/). See the [observability quick start](docs/observability.md)
-for setup instructions and a frozen-stream demonstration.
+A starter Prometheus scrape file, practical PromQL examples, alerting-rule
+examples and an importable Grafana dashboard live under [`examples/`](examples/).
+See the [observability quick start](docs/observability.md) for setup instructions
+and a frozen-stream demonstration.
 
 ## Project status
 
 The current lab includes a live three-asset fictional fleet, injectable failure
-scenarios, freshness and progression detection, quality evaluation, derived
-alarms, a responsive dashboard, Prometheus metrics and automated tests.
+scenarios, freshness and progression detection, processing-lag measurement,
+quality evaluation, derived alarms, a responsive dashboard, Prometheus metrics,
+PromQL and alerting examples, and automated tests.
 
-Upcoming work focuses on processing lag, combined data-health scoring,
-configurable assets and additional community observability examples. See the
+Upcoming work focuses on combined data-health scoring, configurable assets and
+additional community-contributed training and monitoring scenarios. See the
 [open issues](https://github.com/VITA2aishu/gridpulse-lab/issues) if you would
 like to contribute.
 
 ### Good first contributions
 
-New contributors can start with these small, self-contained tasks:
+New contributors can browse the open [`good first issue`](https://github.com/VITA2aishu/gridpulse-lab/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) tasks. One current starter task is:
 
 - [#13 — Add exporter unit tests for escaping metric labels](https://github.com/VITA2aishu/gridpulse-lab/issues/13)
-- [#14 — Document example PromQL queries](https://github.com/VITA2aishu/gridpulse-lab/issues/14)
-- [#15 — Add metrics endpoint smoke test documentation](https://github.com/VITA2aishu/gridpulse-lab/issues/15)
 
 ## API
 
@@ -131,7 +131,6 @@ See the [API reference](docs/api.md), [architecture](docs/architecture.md), and
 
 - data-health scoring across freshness, progression, connectivity, lag and quality;
 - time-series history and incident replay;
-- processing-lag telemetry and observability;
 - configurable fictional assets;
 - community-contributed training and monitoring scenarios.
 
