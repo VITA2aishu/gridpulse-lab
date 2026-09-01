@@ -52,14 +52,14 @@ Inject a frozen-stream training incident:
 ```bash
 curl -X POST http://localhost:8080/api/v1/incidents \
   -H "Content-Type: application/json" \
-  -d '{"asset_id":"aurora-bess","incident_type":"frozen_stream"}'
+  -d '{"asset_id":"aurora-1","kind":"frozen_stream"}'
 ```
 
 Refresh the dashboard or `/metrics` and watch progression/freshness signals
 change. Clear the incident when finished:
 
 ```bash
-curl -X DELETE http://localhost:8080/api/v1/incidents/aurora-bess
+curl -X DELETE http://localhost:8080/api/v1/incidents/aurora-1
 ```
 
 See the [observability guide](docs/observability.md) for Prometheus and Grafana.
