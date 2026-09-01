@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from .lag import processing_lag_seconds
 from .models import AssetTelemetry, Quality
 
 
@@ -44,15 +45,23 @@ def render_metrics(
         lines.append(_sample("gridpulse_telemetry_age_seconds", round(age, 3), **labels))
 
     lines.extend([
+        "# HELP gridpulse_processing_lag_seconds Delay from newest observation to application processing.",
+        "# TYPE gridpulse_processing_lag_seconds gauge",
+    ])
+    for asset in assets:
+        lines.append(_sample(
+            "gridpulse_processing_lag_seconds",
+            round(processing_lag_seconds(asset, now), 3),
+            asset_id=asset.asset_id,
+            region=asset.region,
+        ))
+
+    lines.extend([
         "# HELP gridpulse_quality_points Number of telemetry points by quality state.",
         "# TYPE gridpulse_quality_points gauge",
     ])
     for quality in Quality:
-        count = sum(
-            point.quality is quality
-            for asset in assets
-            for point in asset.points.values()
-        )
+        count = sum(point.quality is quality for asset in assets for point in asset.points.values())
         lines.append(_sample("gridpulse_quality_points", count, quality=quality.value))
 
     lines.extend([
