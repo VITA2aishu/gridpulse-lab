@@ -36,6 +36,34 @@ incidents, point quality, and progression state for the fictional fleet. The
 preview is illustrative; live values come from the `/metrics` endpoint when the
 lab is running.
 
+## Try it in 2 minutes
+
+From a source checkout, start the dependency-free server:
+
+```bash
+PYTHONPATH=src python -m gridpulse.server
+```
+
+Then open <http://localhost:8080> for the live fictional fleet and
+<http://localhost:8080/metrics> for Prometheus-format telemetry-health metrics.
+
+Inject a frozen-stream training incident:
+
+```bash
+curl -X POST http://localhost:8080/api/v1/incidents \
+  -H "Content-Type: application/json" \
+  -d '{"asset_id":"aurora-bess","incident_type":"frozen_stream"}'
+```
+
+Refresh the dashboard or `/metrics` and watch progression/freshness signals
+change. Clear the incident when finished:
+
+```bash
+curl -X DELETE http://localhost:8080/api/v1/incidents/aurora-bess
+```
+
+See the [observability guide](docs/observability.md) for Prometheus and Grafana.
+
 ## Quick start
 
 ```bash
@@ -76,6 +104,14 @@ Upcoming work focuses on processing lag, combined data-health scoring,
 configurable assets and additional community observability examples. See the
 [open issues](https://github.com/VITA2aishu/gridpulse-lab/issues) if you would
 like to contribute.
+
+### Good first contributions
+
+New contributors can start with these small, self-contained tasks:
+
+- [#13 — Add exporter unit tests for escaping metric labels](https://github.com/VITA2aishu/gridpulse-lab/issues/13)
+- [#14 — Document example PromQL queries](https://github.com/VITA2aishu/gridpulse-lab/issues/14)
+- [#15 — Add metrics endpoint smoke test documentation](https://github.com/VITA2aishu/gridpulse-lab/issues/15)
 
 ## API
 
