@@ -35,9 +35,13 @@ Keeping processing lag separate prevents an application-side delay from being de
 
 ## 2. Scrape with Prometheus
 
-A starter configuration is provided at [`examples/prometheus/prometheus.yml`](../examples/prometheus/prometheus.yml).
+A starter configuration is provided at [`examples/prometheus/prometheus.yml`](../examples/prometheus/prometheus.yml). It also loads the demonstration alert rules from [`examples/prometheus/alerts.yml`](../examples/prometheus/alerts.yml).
 
 Run Prometheus with that configuration using your preferred local installation. The example assumes Prometheus and GridPulse Lab can both reach `127.0.0.1:8080`. If Prometheus runs in a container, adjust the target to an address that reaches the host on your platform.
+
+The alert thresholds in the example are intentionally simple demonstration defaults. They are not production recommendations and should be adapted to the behavior and service objectives of a real system.
+
+For interactive exploration, see the [PromQL examples](promql.md), including queries for stale telemetry, frozen streams, alarm count, worst telemetry age, and processing lag.
 
 ## 3. Import the Grafana dashboard
 
