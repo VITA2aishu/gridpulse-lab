@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from .health import HealthResult
 from .lag import processing_lag_seconds
 from .models import AssetTelemetry, Quality
 
@@ -22,6 +23,7 @@ def _sample(name: str, value: int | float, **labels: str) -> str:
 def render_metrics(
     assets: list[AssetTelemetry],
     progression: dict[str, dict[str, object]],
+    health: dict[str, HealthResult],
     alarm_count: int,
     incident_count: int,
     now: datetime,
@@ -75,6 +77,29 @@ def render_metrics(
             lines.append(_sample(
                 "gridpulse_progression_state",
                 1 if current == state else 0,
+                asset_id=asset.asset_id,
+                status=state,
+            ))
+
+    lines.extend([
+        "# HELP gridpulse_health_score Combined telemetry-health score from 0 to 100.",
+        "# TYPE gridpulse_health_score gauge",
+        "# HELP gridpulse_health_state Combined asset health state encoded as a one-hot gauge.",
+        "# TYPE gridpulse_health_state gauge",
+    ])
+    health_states = ("healthy", "degraded", "stale", "failed")
+    for asset in assets:
+        result = health[asset.asset_id]
+        lines.append(_sample(
+            "gridpulse_health_score",
+            result.score,
+            asset_id=asset.asset_id,
+            region=asset.region,
+        ))
+        for state in health_states:
+            lines.append(_sample(
+                "gridpulse_health_state",
+                1 if result.status.value == state else 0,
                 asset_id=asset.asset_id,
                 status=state,
             ))
