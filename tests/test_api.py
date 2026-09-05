@@ -48,10 +48,17 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(3, len(body["assets"]))
         self.assertIn("quality_summary", body)
         self.assertIn("progression_summary", body)
+        self.assertIn("health_summary", body)
         self.assertIn("progression", body["assets"][0])
+        self.assertIn("health", body["assets"][0])
         self.assertIn(body["assets"][0]["progression"]["status"], {
             "progressing", "unchanged", "frozen"
         })
+        self.assertIn(body["assets"][0]["health"]["status"], {
+            "healthy", "degraded", "stale", "failed"
+        })
+        self.assertGreaterEqual(body["assets"][0]["health"]["score"], 0)
+        self.assertLessEqual(body["assets"][0]["health"]["score"], 100)
 
     def test_metrics_endpoint(self):
         status, content_type, content = self.raw_request("GET", "/metrics")
@@ -64,6 +71,8 @@ class ApiTests(unittest.TestCase):
         self.assertIn("gridpulse_active_incidents", text)
         self.assertIn("gridpulse_quality_points", text)
         self.assertIn("gridpulse_progression_state", text)
+        self.assertIn("gridpulse_health_score", text)
+        self.assertIn("gridpulse_health_state", text)
         self.assertIn('asset_id="aurora-1"', text)
 
     def test_create_and_clear_incident(self):
