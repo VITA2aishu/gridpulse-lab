@@ -35,8 +35,9 @@ main { padding: 30px 0; }
 .asset h3 { margin: 0 0 4px; font-size: 1.05rem; }
 .asset-header p { color: var(--muted); font-size: .75rem; }
 .badge { border-radius: 999px; padding: 5px 9px; text-transform: uppercase; font-size: .6rem; font-weight: 800; letter-spacing: .08em; }
-.badge.good { color: var(--green); background: rgba(69,224,168,.12); }
-.badge.bad { color: var(--red); background: rgba(255,107,107,.13); }
+.badge.good, .badge.health-healthy { color: var(--green); background: rgba(69,224,168,.12); }
+.badge.health-degraded, .badge.health-stale { color: var(--amber); background: rgba(255,191,90,.13); }
+.badge.bad, .badge.health-failed { color: var(--red); background: rgba(255,107,107,.13); }
 .soc-line { display: flex; justify-content: space-between; align-items: end; margin: 20px 0 8px; }
 .soc-line strong { font-size: 2.25rem; }
 .soc-line span { color: var(--muted); font-size: .72rem; }

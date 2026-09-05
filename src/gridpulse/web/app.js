@@ -11,12 +11,11 @@ const value = (asset, name, digits = 1) => {
 const qualityClass = item => `quality-${item.quality}`;
 
 function renderAsset(asset) {
-  const points = Object.values(asset.points);
-  const healthy = points.every(item => item.quality === 'good');
   const soc = point(asset, 'soc');
+  const health = asset.health || {status: 'unknown', score: 0};
   return `<article class="asset">
     <div class="asset-header"><div><h3>${asset.name}</h3><p>${asset.region} · ${asset.capacity_mw} MW / ${asset.energy_mwh} MWh</p></div>
-      <span class="badge ${healthy ? 'good' : 'bad'}">${healthy ? 'healthy' : 'attention'}</span></div>
+      <span class="badge health-${health.status}">${health.status} · ${health.score}</span></div>
     <div class="soc-line"><div><span>STATE OF CHARGE</span><br><strong class="${qualityClass(soc)}">${value(asset, 'soc')}%</strong></div><span>${asset.asset_id}</span></div>
     <div class="soc-track"><div class="soc-fill" style="width:${soc.value || 0}%"></div></div>
     <div class="metrics">
