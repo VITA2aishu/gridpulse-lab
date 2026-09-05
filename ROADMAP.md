@@ -21,22 +21,28 @@ GridPulse Lab is evolving around five data-health signals:
 - **Processing lag** — how far behind real time is the pipeline?
 - **Data quality** — is the information usable and internally consistent?
 
-These signals will eventually produce a per-source health score and a fleet-level status of `HEALTHY`, `DEGRADED`, `STALE`, or `FAILED`.
+These signals feed a per-source health score and a fleet-level status of `HEALTHY`, `DEGRADED`, `STALE`, or `FAILED`.
 
-## v0.2 — Data health
+## v0.2 — Data health and observability
 
-- Add progression detection using observation timestamps and sequence counters.
-- Add per-asset processing-lag calculation.
-- Add a combined data-health score and status.
-- Expose health details through the API and dashboard.
-- Add tests for frozen-value, delayed-stream, and malformed-data scenarios.
+Completed in v0.2.0:
 
-## v0.3 — Observability
+- Progression detection using observation timestamps.
+- Synthetic frozen-stream incidents.
+- Per-asset processing-lag calculation.
+- Prometheus telemetry-health metrics.
+- Prometheus and Grafana observability examples.
+- Practical PromQL and alerting examples.
+- Expanded contributor documentation and tests.
 
-- Optional Prometheus metrics endpoint.
-- Time-series history for recent telemetry and incidents.
-- Incident replay for demonstrations and workshops.
-- Better recovery-state tracking so alarms clear automatically when data resumes.
+## v0.3 — Combined telemetry health
+
+- Combine freshness, progression, connectivity, processing lag, and data quality into a per-asset health assessment.
+- Expose the health score, status, and underlying signals through the API.
+- Export combined health score/state through Prometheus metrics.
+- Surface combined health clearly in the local dashboard.
+- Add tests for healthy, degraded, stale, frozen, missing, and unavailable scenarios.
+- Improve recovery-state tracking so health returns to normal when synthetic incidents clear.
 
 ## v0.4 — Extensibility
 
