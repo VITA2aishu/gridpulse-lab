@@ -51,6 +51,7 @@ class ApiTests(unittest.TestCase):
         self.assertIn("health_summary", body)
         self.assertIn("progression", body["assets"][0])
         self.assertIn("health", body["assets"][0])
+        self.assertIn("recovery", body["assets"][0])
         self.assertIn(body["assets"][0]["progression"]["status"], {
             "progressing", "unchanged", "frozen"
         })
@@ -59,6 +60,9 @@ class ApiTests(unittest.TestCase):
         })
         self.assertGreaterEqual(body["assets"][0]["health"]["score"], 0)
         self.assertLessEqual(body["assets"][0]["health"]["score"], 100)
+        self.assertIn("recovered", body["assets"][0]["recovery"])
+        self.assertIn("recovery_count", body["assets"][0]["recovery"])
+        self.assertIn("last_recovered_at", body["assets"][0]["recovery"])
 
     def test_metrics_endpoint(self):
         status, content_type, content = self.raw_request("GET", "/metrics")
