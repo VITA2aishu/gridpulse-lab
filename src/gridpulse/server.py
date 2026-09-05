@@ -16,6 +16,7 @@ from .metrics import render_metrics
 from .models import utc_now
 from .progression import ProgressionEngine
 from .quality import QualityEngine
+from .recovery import RecoveryTracker
 from .simulator import FleetSimulator
 
 
@@ -26,6 +27,7 @@ class Application:
         self.quality = QualityEngine()
         self.progression = ProgressionEngine()
         self.health = HealthEngine()
+        self.recovery = RecoveryTracker()
 
     def _snapshot(self):
         now = utc_now()
@@ -33,6 +35,7 @@ class Application:
         self.incidents.apply(assets)
         progression = {}
         health = {}
+        recovery = {}
         for asset in assets:
             self.quality.evaluate(asset, now)
             progression[asset.asset_id] = self.progression.evaluate(asset, now)
@@ -41,15 +44,21 @@ class Application:
                 progression[asset.asset_id],
                 now,
             )
-        return now, assets, progression, health, derive_alarms(assets)
+            recovery[asset.asset_id] = self.recovery.evaluate(
+                asset.asset_id,
+                health[asset.asset_id],
+                now,
+            )
+        return now, assets, progression, health, recovery, derive_alarms(assets)
 
     def telemetry(self) -> dict:
-        now, assets, progression, health, alarms = self._snapshot()
+        now, assets, progression, health, recovery, alarms = self._snapshot()
         payload_assets = []
         for asset in assets:
             payload = asset.to_dict()
             payload["progression"] = progression[asset.asset_id]
             payload["health"] = health[asset.asset_id].to_dict()
+            payload["recovery"] = recovery[asset.asset_id]
             payload_assets.append(payload)
         return {
             "generated_at": now.isoformat(),
@@ -61,7 +70,7 @@ class Application:
         }
 
     def metrics(self) -> str:
-        now, assets, progression, health, alarms = self._snapshot()
+        now, assets, progression, health, recovery, alarms = self._snapshot()
         return render_metrics(
             assets,
             progression,
