@@ -4,37 +4,17 @@
 [![Python](https://img.shields.io/badge/python-3.11%2B-45e0a8)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-45e0a8.svg)](LICENSE)
 
-An open-source, dependency-free lab for learning how real-time grid and battery
-energy storage telemetry behaves when measurements become stale, frozen, invalid
-or unavailable.
+**Detect silent telemetry failures in real-time energy systems.**
+
+GridPulse Lab is an open-source, dependency-free Python lab for exploring what
+happens when grid and battery telemetry becomes **stale, frozen, delayed,
+invalid, or unavailable**. It turns those failure modes into reproducible local
+scenarios with health signals, alarms, Prometheus metrics, and a live dashboard.
+
+**Health signals:** freshness · progression · connectivity · processing lag · data quality
 
 > **Safety note:** GridPulse Lab uses generated data and fictional assets. It
 > contains no employer data, production endpoints or proprietary configuration.
-
-## Why it exists
-
-Operational energy systems are difficult to learn without access to a control
-room. GridPulse Lab makes the important concepts reproducible on a laptop:
-
-- battery state of charge, active/reactive power and frequency;
-- telemetry freshness, progression and data-quality evaluation;
-- alarm lifecycle and synthetic incident injection;
-- a live operations dashboard and documented JSON API;
-- Prometheus metrics plus a starter Grafana telemetry-health dashboard.
-
-The longer-term health model goes beyond service uptime and focuses on five
-signals: **freshness, progression, connectivity, processing lag and data
-quality**. See the [public roadmap](ROADMAP.md) for planned releases and
-contribution opportunities.
-
-## Dashboard preview
-
-![GridPulse Lab telemetry-health dashboard](docs/images/gridpulse-dashboard-preview.svg)
-
-The starter Grafana dashboard visualizes telemetry age, active alarms, synthetic
-incidents, point quality, and progression state for the fictional fleet. The
-preview is illustrative; live values come from the `/metrics` endpoint when the
-lab is running.
 
 ## Try it in 2 minutes
 
@@ -63,6 +43,32 @@ curl -X DELETE http://localhost:8080/api/v1/incidents/aurora-1
 ```
 
 See the [observability guide](docs/observability.md) for Prometheus and Grafana.
+
+## Dashboard preview
+
+![GridPulse Lab telemetry-health dashboard](docs/images/gridpulse-dashboard-preview.svg)
+
+The starter Grafana dashboard visualizes telemetry age, active alarms, synthetic
+incidents, point quality, and progression state for the fictional fleet. The
+preview is illustrative; live values come from the `/metrics` endpoint when the
+lab is running.
+
+## Why it exists
+
+Operational energy systems are difficult to learn without access to a control
+room. GridPulse Lab makes important telemetry-health concepts reproducible on a
+laptop:
+
+- battery state of charge, active/reactive power and frequency;
+- telemetry freshness, progression and data-quality evaluation;
+- alarm lifecycle and synthetic incident injection;
+- a live operations dashboard and documented JSON API;
+- Prometheus metrics plus a starter Grafana telemetry-health dashboard.
+
+The health model goes beyond service uptime and focuses on five signals:
+**freshness, progression, connectivity, processing lag and data quality**. See
+the [public roadmap](ROADMAP.md) for planned releases and contribution
+opportunities.
 
 ## Quick start
 
@@ -112,6 +118,8 @@ like to contribute.
 New contributors can browse the open [`good first issue`](https://github.com/VITA2aishu/gridpulse-lab/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) tasks. One current starter task is:
 
 - [#13 — Add exporter unit tests for escaping metric labels](https://github.com/VITA2aishu/gridpulse-lab/issues/13)
+
+For a larger follow-up, see the [`help wanted`](https://github.com/VITA2aishu/gridpulse-lab/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) tasks.
 
 ## API
 
