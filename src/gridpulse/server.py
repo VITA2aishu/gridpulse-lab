@@ -10,6 +10,7 @@ from importlib.resources import files
 from urllib.parse import urlparse
 
 from .alarms import derive_alarms
+from .health import HealthEngine
 from .incidents import IncidentController, IncidentType
 from .metrics import render_metrics
 from .models import utc_now
@@ -24,37 +25,47 @@ class Application:
         self.incidents = IncidentController()
         self.quality = QualityEngine()
         self.progression = ProgressionEngine()
+        self.health = HealthEngine()
 
     def _snapshot(self):
         now = utc_now()
         assets = self.simulator.snapshot(now)
         self.incidents.apply(assets)
         progression = {}
+        health = {}
         for asset in assets:
             self.quality.evaluate(asset, now)
             progression[asset.asset_id] = self.progression.evaluate(asset, now)
-        return now, assets, progression, derive_alarms(assets)
+            health[asset.asset_id] = self.health.evaluate(
+                asset,
+                progression[asset.asset_id],
+                now,
+            )
+        return now, assets, progression, health, derive_alarms(assets)
 
     def telemetry(self) -> dict:
-        now, assets, progression, alarms = self._snapshot()
+        now, assets, progression, health, alarms = self._snapshot()
         payload_assets = []
         for asset in assets:
             payload = asset.to_dict()
             payload["progression"] = progression[asset.asset_id]
+            payload["health"] = health[asset.asset_id].to_dict()
             payload_assets.append(payload)
         return {
             "generated_at": now.isoformat(),
             "quality_summary": self.quality.summary(assets),
             "progression_summary": self._progression_summary(progression),
+            "health_summary": self._health_summary(health),
             "alarms": [alarm.to_dict() for alarm in alarms],
             "assets": payload_assets,
         }
 
     def metrics(self) -> str:
-        now, assets, progression, alarms = self._snapshot()
+        now, assets, progression, health, alarms = self._snapshot()
         return render_metrics(
             assets,
             progression,
+            health,
             alarm_count=len(alarms),
             incident_count=len(self.incidents.list()),
             now=now,
@@ -65,6 +76,13 @@ class Application:
         counts = {"progressing": 0, "unchanged": 0, "frozen": 0}
         for item in progression.values():
             counts[str(item["status"])] += 1
+        return counts
+
+    @staticmethod
+    def _health_summary(health: dict[str, object]) -> dict[str, int]:
+        counts = {"healthy": 0, "degraded": 0, "stale": 0, "failed": 0}
+        for result in health.values():
+            counts[result.status.value] += 1
         return counts
 
 
