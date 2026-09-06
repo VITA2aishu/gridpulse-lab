@@ -4,13 +4,29 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gridpulse-lab"
-version = "0.2.0"
+version = "0.3.0"
 description = "A dependency-free real-time grid and BESS telemetry simulator"
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [{name = "Aisvarya Sampath Kumar"}]
 keywords = ["bess", "grid", "telemetry", "scada", "energy"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering",
+    "Topic :: System :: Monitoring",
+]
+
+[project.urls]
+Homepage = "https://github.com/VITA2aishu/gridpulse-lab"
+Documentation = "https://github.com/VITA2aishu/gridpulse-lab#readme"
+Issues = "https://github.com/VITA2aishu/gridpulse-lab/issues"
+Changelog = "https://github.com/VITA2aishu/gridpulse-lab/blob/main/CHANGELOG.md"
 
 [project.scripts]
 gridpulse = "gridpulse.server:main"
@@ -20,4 +36,3 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 gridpulse = ["web/*"]
-

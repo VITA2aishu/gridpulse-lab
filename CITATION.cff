@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use GridPulse Lab in research, teaching, or an evaluation, please cite it."
+title: "GridPulse Lab: Reproducible Telemetry-Health Scenarios for Real-Time Energy Systems"
+type: software
+authors:
+  - family-names: "Sampath Kumar"
+    given-names: "Aisvarya"
+repository-code: "https://github.com/VITA2aishu/gridpulse-lab"
+url: "https://github.com/VITA2aishu/gridpulse-lab"
+license: MIT
+version: 0.3.0
+keywords:
+  - battery energy storage systems
+  - grid telemetry
+  - observability
+  - SCADA
+  - synthetic data

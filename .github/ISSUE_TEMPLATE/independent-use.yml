@@ -1,0 +1,55 @@
+name: Independent use report
+description: Share a reproducible evaluation, integration, teaching use, or limitation
+title: "[Use report]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for independently evaluating GridPulse Lab. Use only synthetic or public data; do not include confidential or production information.
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Provide a release number or full commit hash.
+      placeholder: v0.3.0 or commit hash
+    validations:
+      required: true
+  - type: dropdown
+    id: use
+    attributes:
+      label: Type of use
+      options:
+        - Independent evaluation
+        - Software integration
+        - Teaching or training
+        - Research or technical report
+        - Article or demonstration
+        - Reproducible limitation or failure
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment and method
+      description: Include operating system, Python version, scenario, and commands or integration steps.
+    validations:
+      required: true
+  - type: textarea
+    id: results
+    attributes:
+      label: Results
+      description: Explain what worked, what did not, and any measurements or observations.
+    validations:
+      required: true
+  - type: input
+    id: evidence
+    attributes:
+      label: Public evidence
+      description: Link a repository, article, course, report, dataset, or reproducible example when available.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety confirmation
+      options:
+        - label: I used only synthetic or public data and included no confidential, employer, customer, or production information.
+          required: true
