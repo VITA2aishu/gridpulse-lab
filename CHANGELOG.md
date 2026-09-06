@@ -2,7 +2,17 @@
 
 All notable changes to GridPulse Lab are documented here.
 
-## [0.2.0] - Unreleased
+## [0.3.0] - Unreleased
+
+### Added
+
+- combined health scoring across freshness, progression, connectivity, processing lag and data quality;
+- health status and component signals in the API, dashboard and Prometheus metrics;
+- recovery-state tracking when an asset returns to healthy operation;
+- a public evaluation guide and structured independent-use reporting process;
+- citation metadata for research and technical reports.
+
+## [0.2.0] - 2026-09-01
 
 ### Added
 

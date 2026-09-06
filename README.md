@@ -3,6 +3,7 @@
 [![CI](https://github.com/VITA2aishu/gridpulse-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/VITA2aishu/gridpulse-lab/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.11%2B-45e0a8)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-45e0a8.svg)](LICENSE)
+[![Cite this project](https://img.shields.io/badge/cite-CITATION.cff-45e0a8)](CITATION.cff)
 
 **Detect silent telemetry failures in real-time energy systems.**
 
@@ -72,15 +73,20 @@ opportunities.
 
 ## Quick start
 
+Install the current development version directly from GitHub:
+
 ```bash
-python -m gridpulse.server
+python -m pip install "git+https://github.com/VITA2aishu/gridpulse-lab.git"
+gridpulse
 ```
 
-Then open <http://localhost:8080>. For source checkouts without installation:
+Or run it from a source checkout:
 
 ```bash
 PYTHONPATH=src python -m gridpulse.server
 ```
+
+Then open <http://localhost:8080>.
 
 Run the test suite:
 
@@ -108,10 +114,11 @@ scenarios, freshness and progression detection, processing-lag measurement,
 quality evaluation, derived alarms, a responsive dashboard, Prometheus metrics,
 PromQL and alerting examples, and automated tests.
 
-Upcoming work focuses on combined data-health scoring, configurable assets and
-additional community-contributed training and monitoring scenarios. See the
-[open issues](https://github.com/VITA2aishu/gridpulse-lab/issues) if you would
-like to contribute.
+The current development version includes combined data-health scoring and
+recovery tracking. Upcoming work focuses on configurable assets, reproducible
+scenario runs and additional community-contributed training and monitoring
+scenarios. See the [open issues](https://github.com/VITA2aishu/gridpulse-lab/issues)
+if you would like to contribute.
 
 ### Good first contributions
 
@@ -135,9 +142,20 @@ For a larger follow-up, see the [`help wanted`](https://github.com/VITA2aishu/gr
 See the [API reference](docs/api.md), [architecture](docs/architecture.md), and
 [observability guide](docs/observability.md).
 
+## Evaluate and cite
+
+Independent testing is welcome. Follow the [evaluation guide](docs/evaluation.md)
+to run the same healthy, frozen, stale and recovery checks across versions. If
+you use GridPulse Lab in a class, experiment, article, prototype or monitoring
+comparison, please record it through the [adoption page](ADOPTION.md). Positive
+results, limitations and reproducible failures are all useful.
+
+For academic or technical citation, use [`CITATION.cff`](CITATION.cff). Tagged
+releases are intended to be archived with a DOI so results can reference an
+immutable version.
+
 ## Roadmap
 
-- data-health scoring across freshness, progression, connectivity, lag and quality;
 - time-series history and incident replay;
 - configurable fictional assets;
 - community-contributed training and monitoring scenarios.
