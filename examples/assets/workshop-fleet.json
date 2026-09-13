@@ -1,0 +1,27 @@
+{
+  "assets": [
+    {
+      "asset_id": "harbor-1",
+      "name": "Harbor Point Battery",
+      "region": "East",
+      "capacity_mw": 60,
+      "energy_mwh": 240,
+      "initial_soc": 55
+    },
+    {
+      "asset_id": "mesa-1",
+      "name": "Mesa Ridge Storage",
+      "region": "West",
+      "capacity_mw": 120,
+      "energy_mwh": 480,
+      "initial_soc": 40
+    },
+    {
+      "asset_id": "willow-1",
+      "name": "Willow Bend Reserve",
+      "region": "South",
+      "capacity_mw": 45,
+      "energy_mwh": 90
+    }
+  ]
+}

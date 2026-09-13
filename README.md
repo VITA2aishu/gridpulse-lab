@@ -94,6 +94,19 @@ Run the test suite:
 PYTHONPATH=src python -m unittest discover -s tests -v
 ```
 
+## Custom fictional fleets
+
+Workshops and tests can replace the built-in fleet with a local JSON
+configuration file — no code changes required:
+
+```bash
+PYTHONPATH=src python -m gridpulse.server --assets examples/assets/workshop-fleet.json
+```
+
+Required and optional fields, validation rules and a runnable example are
+documented in the [fleet configuration guide](docs/configuration.md). All
+configured assets must remain fictional.
+
 ## Observability quick start
 
 Prometheus-format metrics are available at:

@@ -10,7 +10,8 @@ All notable changes to GridPulse Lab are documented here.
 - health status and component signals in the API, dashboard and Prometheus metrics;
 - recovery-state tracking when an asset returns to healthy operation;
 - a public evaluation guide and structured independent-use reporting process;
-- citation metadata for research and technical reports.
+- citation metadata for research and technical reports;
+- configurable fictional fleet assets loaded from a local JSON file via `--assets`.
 
 ## [0.2.0] - 2026-09-01
 
