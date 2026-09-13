@@ -23,6 +23,10 @@ You should see metrics including:
 - `gridpulse_quality_points`
 - `gridpulse_progression_state`
 
+### Exposition format
+
+`/metrics` serves the Prometheus 0.0.4 text format (`text/plain; version=0.0.4; charset=utf-8`) by default. Prometheus and other clients that support the OpenMetrics text format can negotiate it with an `Accept: application/openmetrics-text` request header; the response is then `application/openmetrics-text; version=1.0.0; charset=utf-8` and ends with the required `# EOF` marker. The negotiation is implemented in the lab itself, so the exporter stays dependency-free.
+
 ## Freshness, progression, and processing lag
 
 These signals answer different operational questions:

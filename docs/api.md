@@ -34,7 +34,15 @@ remain numerically constant and still be considered healthy when fresh observati
 
 ## `GET /metrics`
 
-Returns Prometheus text exposition format without requiring the Prometheus Python client.
+Returns metrics in the Prometheus 0.0.4 text exposition format without requiring the Prometheus Python client. The default response content type is `text/plain; version=0.0.4; charset=utf-8`.
+
+Clients that support the OpenMetrics text format can negotiate it through the `Accept` request header:
+
+```bash
+curl -H "Accept: application/openmetrics-text" http://127.0.0.1:8080/metrics
+```
+
+An OpenMetrics response is served as `application/openmetrics-text; version=1.0.0; charset=utf-8` and ends with the `# EOF` terminator the format requires. Negotiation is implemented by the lab itself and adds no dependency. A missing `Accept` header, a wildcard, or `text/plain` keeps the Prometheus plain-text default.
 
 Metrics:
 
