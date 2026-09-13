@@ -22,6 +22,11 @@ You should see metrics including:
 - `gridpulse_active_incidents`
 - `gridpulse_quality_points`
 - `gridpulse_progression_state`
+- `gridpulse_health_score`
+- `gridpulse_health_state`
+
+See the [metrics reference](metrics.md) for the full list of labels and
+meanings.
 
 ## Freshness, progression, and processing lag
 
