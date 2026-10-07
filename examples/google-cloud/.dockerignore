@@ -1,0 +1,6 @@
+*
+!Dockerfile
+!requirements.txt
+!telemetry_logs.py
+!receiver.py
+!gunicorn.conf.py
