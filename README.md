@@ -128,6 +128,13 @@ New contributors can browse the open [`good first issue`](https://github.com/VIT
 
 For a larger follow-up, see the [`help wanted`](https://github.com/VITA2aishu/gridpulse-lab/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) tasks.
 
+## Google Cloud data-health tutorial
+
+See [Your service is healthy, but is your data fresh?](docs/google-cloud-data-health.md)
+for a locally tested structured-logging example, timestamp validation, and a
+Google Cloud observability design. The Python demo runs without cloud credentials;
+the guide clearly distinguishes local verification from proposed cloud integration.
+
 ## API
 
 | Endpoint | Purpose |
