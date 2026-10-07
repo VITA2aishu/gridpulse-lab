@@ -135,6 +135,11 @@ for a locally tested structured-logging example, timestamp validation, and a
 Google Cloud observability design. The Python demo runs without cloud credentials;
 the guide clearly distinguishes local verification from proposed cloud integration.
 
+For a follow-up HTTP example, see [Build an observable telemetry receiver with
+restricted Cloud Run access](docs/google-cloud-secure-receiver.md). It includes
+request validation, bounded application logs, local HTTP tests, and a proposed
+IAM-authenticated deployment. Cloud execution is not yet verified.
+
 ## API
 
 | Endpoint | Purpose |
