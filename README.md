@@ -145,6 +145,11 @@ Read [Testing Cloud Run access controls with a telemetry receiver](docs/cloud-ru
 for the practical lessons, dedicated-caller reproduction script, and troubleshooting
 findings from the cloud validation.
 
+See [Validate a Cloud Run log alert through email delivery](docs/cloud-run-log-alert-validation.md)
+for the next cloud experiment: a manually written test log and an authenticated
+receiver request both produced incidents and email notifications. The guide
+records verified results, alert limitations, evidence capture and cleanup.
+
 ## API
 
 | Endpoint | Purpose |
