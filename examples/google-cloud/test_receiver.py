@@ -37,7 +37,7 @@ class ReceiverTests(unittest.TestCase):
                 self.assertEqual(result["logs"][0]["status"], status)
 
     def test_routes_methods_health_and_headers(self):
-        result = self.call(PATH_INFO="/healthz", REQUEST_METHOD="GET")
+        result = self.call(PATH_INFO="/health", REQUEST_METHOD="GET")
         self.assertEqual(result["body"]["checks"], "process_only")
         self.assertEqual(result["headers"]["Cache-Control"], "no-store")
         self.assertEqual(self.call(REQUEST_METHOD="GET")["status"], 405)
@@ -68,7 +68,7 @@ class ReceiverTests(unittest.TestCase):
         thread.start()
         try:
             url = f"http://127.0.0.1:{server.server_port}"
-            with urllib.request.urlopen(url+"/healthz", timeout=3) as response:
+            with urllib.request.urlopen(url+"/health", timeout=3) as response:
                 self.assertEqual(response.status, 200)
             request = urllib.request.Request(url+"/telemetry", data=self.event(), headers={"Content-Type": "application/json"})
             with contextlib.redirect_stdout(io.StringIO()):
