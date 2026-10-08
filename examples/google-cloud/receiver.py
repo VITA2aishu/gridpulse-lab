@@ -33,7 +33,7 @@ def unique_object(pairs):
     return result
 
 
-def application(environ, start_response):
+def application(environ, start_response, *, observer=None):
     request_id = str(uuid.uuid4())
 
     def respond(code, payload, reason=None, extra_headers=()):
@@ -79,7 +79,10 @@ def application(environ, start_response):
     timestamp = event["event_time"]
     if not isinstance(timestamp, str) or len(timestamp) > 64:
         return respond(400, {"error": "invalid_event_time"}, "timestamp")
-    record = classify(event, datetime.now(timezone.utc))
+    received_at = datetime.now(timezone.utc)
+    record = classify(event, received_at)
+    if observer is not None:
+        observer(event, received_at)
     record.update(component="telemetry_receiver", request_id=request_id)
     emit(record)
     if record["status"] == "invalid":
