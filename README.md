@@ -137,8 +137,13 @@ the guide clearly distinguishes local verification from proposed cloud integrati
 
 For a follow-up HTTP example, see [Build an observable telemetry receiver with
 restricted Cloud Run access](docs/google-cloud-secure-receiver.md). It includes
-request validation, bounded application logs, local HTTP tests, and a proposed
-IAM-authenticated deployment. Cloud execution is not yet verified.
+request validation, bounded application logs, 17 passing example tests, and a
+validated IAM-authenticated deployment. Cloud checks include denied and permitted
+requests, classification logs, and an administrative IAM audit record.
+
+Read [Testing Cloud Run access controls with a telemetry receiver](docs/cloud-run-access-control-lessons.md)
+for the practical lessons, dedicated-caller reproduction script, and troubleshooting
+findings from the cloud validation.
 
 ## API
 
