@@ -10,6 +10,7 @@ from importlib.resources import files
 from urllib.parse import urlparse
 
 from .alarms import derive_alarms
+from .config import AssetConfigError, load_fleet
 from .health import HealthEngine
 from .incidents import IncidentController, IncidentType
 from .metrics import render_metrics
@@ -17,12 +18,12 @@ from .models import utc_now
 from .progression import ProgressionEngine
 from .quality import QualityEngine
 from .recovery import RecoveryTracker
-from .simulator import FleetSimulator
+from .simulator import DEFAULT_FLEET, AssetConfig, FleetSimulator
 
 
 class Application:
-    def __init__(self) -> None:
-        self.simulator = FleetSimulator()
+    def __init__(self, fleet: tuple[AssetConfig, ...] = DEFAULT_FLEET) -> None:
+        self.simulator = FleetSimulator(fleet=fleet)
         self.incidents = IncidentController()
         self.quality = QualityEngine()
         self.progression = ProgressionEngine()
@@ -183,7 +184,18 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run the GridPulse Lab server")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", default=8080, type=int)
+    parser.add_argument(
+        "--assets",
+        metavar="PATH",
+        help="load fictional fleet assets from a JSON configuration file",
+    )
     args = parser.parse_args()
+    if args.assets:
+        global APP
+        try:
+            APP = Application(fleet=load_fleet(args.assets))
+        except AssetConfigError as error:
+            parser.error(str(error))
     server = ThreadingHTTPServer((args.host, args.port), GridPulseHandler)
     print(f"GridPulse Lab running at http://{args.host}:{args.port}")
     try:
