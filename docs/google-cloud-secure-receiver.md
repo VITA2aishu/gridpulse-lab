@@ -18,7 +18,7 @@ python examples/google-cloud/receiver.py
 The development server binds only to `127.0.0.1:8080`. In a second PowerShell window:
 
 ```powershell
-Invoke-RestMethod -Uri "http://127.0.0.1:8080/healthz"
+Invoke-RestMethod -Uri "http://127.0.0.1:8080/health"
 $reading = @{source_id="demo-a"; event_time=[DateTimeOffset]::UtcNow.ToString("o"); value=12.5}
 Invoke-RestMethod -Uri "http://127.0.0.1:8080/telemetry" -Method Post -ContentType "application/json" -Body ($reading | ConvertTo-Json)
 ```
@@ -27,11 +27,13 @@ Expect `ready` with `checks: process_only` from health, and `fresh` from telemet
 
 The automated tests exercise the same behavior without PowerShell or external packages. Stop the development server with Ctrl+C.
 
+Cloud Run reserves some URL paths ending in `z`. This example uses `/health` to avoid that restriction; see [known issues](https://docs.cloud.google.com/run/docs/known-issues#reserved-url-paths).
+
 ## Request contract
 
 | Endpoint or condition | Result |
 | --- | --- |
-| `GET /healthz` | 200, process readiness only |
+| `GET /health` | 200, process readiness only |
 | `POST /telemetry`, valid fresh/late/future reading | 200 with quality classification |
 | Invalid reading value/source/timestamp | 422, or 400 for schema/length errors |
 | Malformed JSON, duplicate fields, nonstandard JSON numbers | 400 |
@@ -73,12 +75,12 @@ gcloud run services get-iam-policy telemetry-receiver --project YOUR_PROJECT_ID 
 gcloud run services describe telemetry-receiver --project YOUR_PROJECT_ID --region YOUR_REGION --format export
 ```
 
-Confirm the runtime identity, enabled invoker check, traffic settings and absence of broad invocation grants. Test `/healthz` without credentials: it should fail at the platform layer. Then test with a permitted identity. For a development-only PowerShell request:
+Confirm the runtime identity, enabled invoker check, traffic settings and absence of broad invocation grants. Test `/health` without credentials: it should fail at the platform layer. Then test with a permitted identity. For a development-only PowerShell request:
 
 ```powershell
 $serviceUrl = "YOUR_DEPLOYED_SERVICE_URL"
 $idToken = gcloud auth print-identity-token
-Invoke-RestMethod -Uri "$serviceUrl/healthz" -Headers @{Authorization="Bearer $idToken"}
+Invoke-RestMethod -Uri "$serviceUrl/health" -Headers @{Authorization="Bearer $idToken"}
 Remove-Variable idToken
 ```
 
