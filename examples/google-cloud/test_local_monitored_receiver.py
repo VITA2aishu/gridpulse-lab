@@ -32,7 +32,7 @@ class MonitoredTests(unittest.TestCase):
                 self.assertEqual(logs[-1]['status'], 'missing')
                 app.observe(dict(event, value='bad'), datetime.now(timezone.utc))
                 self.assertIn('demo-a', app.monitor.missing)
-                with urlopen(root+'/healthz') as response:
+                with urlopen(root+'/health') as response:
                     self.assertEqual(json.load(response)['checks'], 'process_only')
             finally:
                 server.shutdown()
