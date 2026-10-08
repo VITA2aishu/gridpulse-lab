@@ -2,25 +2,17 @@
 
 By Aisvarya Sampath Kumar · 7 October 2026
 
-A successful deployment answers one question: can the service run? It leaves other questions open. Can an unexpected caller reach it? Can an intended caller reach it with a narrowly scoped grant? Can operators distinguish a healthy process from unhealthy data?
+A Cloud Run deployment can succeed while its access policy is still untested. This walkthrough checks a specific boundary: a dedicated caller must be denied before receiving a service-scoped invocation grant and permitted afterward. It then connects that behavior to an administrative audit record.
 
-This lab uses a small Python telemetry receiver to examine those questions on Google Cloud. The code, tests and [deployment walkthrough](google-cloud-secure-receiver.md) are public. The receiver uses fictional data and does not connect to production systems.
+My earlier articles, [Silent Data Failures: How to Detect When Real-Time Applications Look Healthy but Aren’t](https://hackernoon.com/silent-data-failures-how-to-detect-when-real-time-applications-look-healthy-but-arent) and [Your Service Is Healthy, but Its Data Isn’t: Rethinking Cloud-Native Health Checks](https://cloudnativenow.com/contributed-content/your-service-is-healthy-but-its-data-isnt-rethinking-cloud-native-health-checks/), explain the reliability problem behind the example. This follow-up supplies a Google Cloud implementation and observed access-control results.
 
-## Start with two separate health questions
+The lab uses a small Python receiver with fictional telemetry. Its code, tests and [deployment walkthrough](google-cloud-secure-receiver.md) are public. The cloud validation ran on 7 October 2026 in America/Chicago (8 October UTC).
 
-The receiver exposes `GET /health` and `POST /telemetry`. The first reports process readiness. The second validates and classifies an incoming reading.
+## The application used for the access test
 
-A service can return a healthy response while accepting data that is two minutes old. That is why the health response explicitly says `checks: process_only`. It makes no promise about a continuously arriving stream.
+`GET /health` reports process readiness with `checks: process_only`. `POST /telemetry` validates and classifies a reading with three fields: `source_id`, `event_time` and `value`. Neither endpoint stores readings durably.
 
-Each reading has three fields:
-
-```json
-{"source_id":"demo-a","event_time":"2026-10-08T02:24:23Z","value":12.5}
-```
-
-Generate a current timestamp when reproducing the fresh case; the fixed timestamp above illustrates the schema. The example accepts only fictional sources `demo-a` and `demo-b`. It rejects unknown fields, invalid timestamps and invalid numeric values. It also bounds request bodies and rejects duplicate JSON keys.
-
-The classifier compares event time with arrival time. An age greater than 60 seconds is late. A timestamp more than five seconds ahead of arrival is future. These thresholds are teaching defaults, not universal operational requirements.
+The receiver accepts only fictional sources, rejects malformed input and bounds request bodies. Its classification thresholds and request examples are documented in the [receiver guide](google-cloud-secure-receiver.md). The sections below focus on identities, invocation permissions and evidence.
 
 ## Separate the identities
 
@@ -189,7 +181,7 @@ The cloud receiver does not persist readings, suppress duplicates, detect frozen
 
 Further work should evaluate durable last-valid-event state, an independent scheduled checker and tested alert delivery. Cloud Monitoring metrics, alert delivery, final charges and Data Access audit behavior remain unverified here.
 
-After recording results, review the lab service, build images and service accounts for cleanup. The tested configuration used minimum scale zero and service-level maximum scale one, but scaling settings do not bound all project charges.
+The original lab's Cloud Run service, image repository, source bucket and three dedicated service accounts were deleted after exporting the evidence. The temporary build-role binding was also removed. The code and documentation remain available for reproduction. If you repeat the lab, review the same resources for cleanup after recording your results. Minimum scale zero and service-level maximum scale one do not bound all project charges.
 
 If you reproduce the exercise, an issue with the environment, exact command, response status and redacted logs is useful feedback. Do not include credentials or production telemetry. The goal is to make both successful runs and limitations understandable to the next developer.
 
