@@ -51,12 +51,12 @@ def application(environ, start_response, *, observer=None):
 
     path = environ.get("PATH_INFO", "")
     method = environ.get("REQUEST_METHOD", "")
-    if path not in ("/healthz", "/telemetry"):
+    if path not in ("/health", "/telemetry"):
         return respond(404, {"error": "not_found"})
-    expected = "GET" if path == "/healthz" else "POST"
+    expected = "GET" if path == "/health" else "POST"
     if method != expected:
         return respond(405, {"error": "method_not_allowed"}, extra_headers=(("Allow", expected),))
-    if path == "/healthz":
+    if path == "/health":
         return respond(200, {"status": "ready", "checks": "process_only"})
     if environ.get("CONTENT_TYPE", "").split(";", 1)[0].strip().lower() != "application/json":
         return respond(415, {"error": "application_json_required"}, "content_type")
