@@ -2,9 +2,29 @@
 
 By Aisvarya Sampath Kumar · 7 October 2026
 
-This follow-up to the [data-health tutorial](google-cloud-data-health.md) adds a real HTTP receiver. It demonstrates the Security and Operations intersection: explicit request validation, bounded structured logs, process readiness, and a proposed Cloud Run deployment that requires authenticated callers.
+This follow-up to the [data-health tutorial](google-cloud-data-health.md) adds a real HTTP receiver. It demonstrates the Security and Operations intersection: explicit request validation, bounded structured logs, process readiness, and a validated Cloud Run deployment that requires authenticated callers.
 
-**Verified locally:** all 11 tests pass, including a real HTTP request. **Not yet verified:** Docker image build, Gunicorn startup, Google Cloud deployment, IAM enforcement, audit-log behavior, Cloud Monitoring metrics, alerts or cloud costs. This is a small learning example, not a production-ready telemetry platform.
+**Verified:** all 17 tests pass; a source build and Cloud Run deployment served authenticated requests; structured classification logs and a service IAM administrative audit record were inspected. Cloud Monitoring metrics, alert delivery, Data Access audit behavior and final cloud costs remain unverified. This is a small learning example, not a production-ready telemetry platform.
+
+## Results from the cloud validation
+
+These results were observed in Cloud Shell and Cloud Logging on 7 October 2026 (America/Chicago; 8 October UTC). They describe this lab run, not a guarantee for another project.
+
+| Check | Observed result |
+| --- | --- |
+| Unauthenticated `GET /health` | HTTP 403 |
+| Authenticated permitted caller | HTTP 200, `ready`, `checks: process_only` |
+| Fresh telemetry | HTTP 200, `fresh`; matching INFO classification log |
+| Reading approximately 120 seconds old | HTTP 200, `late`; WARNING `event_age_exceeded` |
+| Reading approximately 30 seconds ahead | HTTP 200, `future`; WARNING `clock_or_timestamp_error` |
+| Invalid value | HTTP 422; WARNING `invalid_value` |
+| Dedicated caller before service invocation grant | HTTP 403 |
+| Same caller after service-scoped `roles/run.invoker` grant | HTTP 200 |
+| Cloud Run Admin Activity audit record | `google.cloud.run.v1.Services.SetIamPolicy`, with the caller and `roles/run.invoker` in the request policy |
+
+The audit record timestamp was `2026-10-08T02:36:54.382332Z`. Its request policy confirms the submitted binding; the before/after invocation test supplies behavioral evidence. No Data Access audit claim is made.
+
+The deployed service used a dedicated runtime identity with no direct project roles, a separate build identity, service-level maximum scale of one, minimum scale zero, concurrency four, 256 MiB memory and a 15-second request timeout. The project also contained a default compute service account with Editor; this receiver did not use it. This validation does not establish least privilege across the entire project.
 
 ## Local walkthrough — no Google Cloud account needed
 
@@ -48,25 +68,25 @@ The exact JSON fields are `source_id`, `event_time`, and `value`. Only fictional
 
 The application logs classifications and bounded rejection reasons. It does not log raw bodies, authorization headers or query strings. The tests check that a synthetic secret does not leak through the application response or logs. Platform request logs are separate and may contain URLs, so never put credentials in URLs.
 
-The local server has no authentication and is restricted to loopback. In the proposed deployment, **Cloud Run IAM handles authentication before the request reaches this application**. The Python code does not validate ID tokens. Do not expose the local development server publicly or deploy this example with public invocation enabled.
+The local server has no authentication and is restricted to loopback. In the validated deployment, **Cloud Run IAM handles authentication before the request reaches this application**. The Python code does not validate ID tokens. Do not expose the local development server publicly or deploy this example with public invocation enabled.
 
 The Dockerfile uses a non-root user and copies only the receiver, classifier and server configuration. The scoped `.dockerignore` keeps other files out of the build context. Gunicorn listens on the Cloud Run `PORT` value through its configuration; the standard-library server is used only for local development. Dependency constraints permit compatible updates; pin the resolved dependencies and base-image digest after testing an actual build.
 
-## Proposed cloud deployment — run after account and cost setup
+## Cloud deployment — run after account and cost setup
 
 Use a new dedicated demo service. Before deployment, choose a personal project, region and spending limit. Enable the required Cloud Run, Cloud Build and Artifact Registry APIs and configure deployment permissions using Google's current guidance. Build/deployer permissions are distinct from runtime permissions. This guide does not grant project-wide Owner or Editor access.
 
 Create a dedicated user-managed runtime service account. The current receiver calls no Google Cloud APIs, so it needs no application-specific Google API roles. If storage or direct API calls are added later, grant only the required resource permissions. Do not download a service-account key.
 
-With those prerequisites ready, this single-line command uses the example folder as the source build context:
+Use a separate build service account with the documented Cloud Run Builder role (`roles/run.builder`) and the required deployer permissions to use the selected identities. The runtime account does not need that build role. With those prerequisites ready, this single-line command uses the example folder as the source build context:
 
 ```text
-gcloud run deploy telemetry-receiver --source examples/google-cloud --project YOUR_PROJECT_ID --region YOUR_REGION --service-account YOUR_RUNTIME_SERVICE_ACCOUNT_EMAIL --no-allow-unauthenticated --invoker-iam-check --min 0 --max 1 --concurrency 4 --timeout 15 --memory 256Mi --cpu 1
+gcloud run deploy telemetry-receiver --source examples/google-cloud --project YOUR_PROJECT_ID --region YOUR_REGION --service-account YOUR_RUNTIME_SERVICE_ACCOUNT_EMAIL --build-service-account projects/YOUR_PROJECT_ID/serviceAccounts/YOUR_BUILD_SERVICE_ACCOUNT_EMAIL --no-allow-unauthenticated --invoker-iam-check --min 0 --max 1 --concurrency 4 --timeout 15 --memory 256Mi --cpu 1 --cpu-throttling
 ```
 
-Replace every `YOUR_...` placeholder. This is a documented deployment recipe, not an executed deployment. Scaling limits reduce exposure to resource usage but are not a hard spending cap; builds, image storage and logs can also incur costs.
+Replace every `YOUR_...` placeholder. This recipe was executed with the lab's project and dedicated service accounts. Scaling limits reduce exposure to resource usage but are not a hard spending cap; builds, image storage and logs can also incur costs.
 
-Grant `roles/run.invoker` on this service only to the intended test user. Authentication-required access can still use an internet-reachable URL; this configuration does not create private network ingress. Check that neither `allUsers` nor `allAuthenticatedUsers` has invocation access.
+Grant `roles/run.invoker` on this service only to the intended caller. The lab used a dedicated caller service account and tested it before and after that grant. Authentication-required access can still use an internet-reachable URL; this configuration does not create private network ingress. Check that neither `allUsers` nor `allAuthenticatedUsers` has invocation access.
 
 Verify the deployed service, rather than assuming the command guarantees its policy:
 
@@ -86,6 +106,12 @@ Remove-Variable idToken
 
 Never print or publish the token. Repeat the telemetry scenarios with the same authorization header. Record actual response codes and logs after execution. Developer CLI tokens are for testing; production service-to-service calls need the appropriate audience-bound identity token.
 
+### Dedicated caller identity tokens
+
+For the dedicated caller test, the signed-in operator received `roles/iam.serviceAccountOpenIdTokenCreator` on the caller service account. The IAM Service Account Credentials API was enabled. An in-memory Python script used the operator's access token to call the [REST generateIdToken method](https://docs.cloud.google.com/iam/docs/create-short-lived-credentials-direct), with the deployed service URL as `audience` and `includeEmail: true`, then sent the returned token in the Authorization header. No service-account key was downloaded and no tokens were printed.
+
+The narrower OpenID token role was insufficient for the tested `gcloud auth print-identity-token --impersonate-service-account` path, which requested access-token permissions. Calling `generateIdToken` directly allowed this test without broadening the role to Service Account Token Creator.
+
 ## Observe classifications
 
 Use this Logs Explorer filter after a real deployment:
@@ -104,7 +130,7 @@ Separately review Cloud Run administrative audit logs for deployment and IAM cha
 
 There is no persistence, source-silence detector, duplicate suppression, Pub/Sub envelope handling, rate limiter or alert policy. HTTP success means the reading was evaluated, not stored durably. A process readiness check cannot prove data freshness. Future work should add durable last-valid-event state and an independent scheduled checker before claiming missing-data detection. Authentication also does not make an authorized caller's data trustworthy; input validation remains necessary.
 
-After testing, remove the demo service and review any build images, runtime service account and separately created monitoring resources for cleanup. Keep a record of actual runs before publishing cloud-result claims.
+After testing, remove the demo service and review any build images, runtime service account and separately created monitoring resources for cleanup. Retain redacted results before deleting resources; image storage and other resources can remain after deleting the service.
 
 ## Official references checked 7 October 2026
 
@@ -113,3 +139,9 @@ After testing, remove the demo service and review any build images, runtime serv
 - [Container port configuration](https://docs.cloud.google.com/run/docs/configuring/services/containers)
 - [Deployment command reference](https://docs.cloud.google.com/sdk/gcloud/reference/run/deploy)
 - [Cloud Run structured logging](https://docs.cloud.google.com/run/docs/logging)
+
+Additional references used during validation:
+
+- [Custom build service accounts](https://docs.cloud.google.com/run/docs/configuring/services/build-service-account)
+- [Create short-lived credentials directly](https://docs.cloud.google.com/iam/docs/create-short-lived-credentials-direct)
+- [Cloud Run reserved URL paths](https://docs.cloud.google.com/run/docs/known-issues#reserved-url-paths)
