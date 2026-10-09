@@ -41,10 +41,13 @@ Metrics:
 | Metric | Meaning |
 |---|---|
 | `gridpulse_telemetry_age_seconds` | Age of the newest observation for each fictional asset |
+| `gridpulse_processing_lag_seconds` | Delay from the newest observation to application processing |
 | `gridpulse_active_alarms` | Number of active derived alarms |
 | `gridpulse_active_incidents` | Number of active synthetic incidents |
 | `gridpulse_quality_points` | Telemetry point count grouped by quality state |
 | `gridpulse_progression_state` | One-hot progression state for each asset |
+| `gridpulse_health_score` | Combined telemetry-health score from 0 to 100 |
+| `gridpulse_health_state` | One-hot combined health state for each asset |
 
 Example:
 
@@ -55,7 +58,7 @@ gridpulse_telemetry_age_seconds{asset_id="aurora-1",region="North"} 0.0
 gridpulse_progression_state{asset_id="aurora-1",status="progressing"} 1
 ```
 
-The labels intentionally use a small, bounded set of fictional asset IDs and states to avoid unnecessary metric cardinality.
+The labels intentionally use a small, bounded set of fictional asset IDs and states to avoid unnecessary metric cardinality. See the [metrics reference](metrics.md) for the full list of labels, the freshness-versus-progression distinction and a complete sample exposition.
 
 ## `POST /incidents`
 

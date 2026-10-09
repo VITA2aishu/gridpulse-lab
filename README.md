@@ -161,7 +161,8 @@ records verified results, alert limitations, evidence capture and cleanup.
 | `DELETE /api/v1/incidents/{asset_id}` | Clear an incident |
 | `GET /metrics` | Prometheus telemetry-health metrics |
 
-See the [API reference](docs/api.md), [architecture](docs/architecture.md), and
+See the [API reference](docs/api.md), [architecture](docs/architecture.md),
+[metrics reference](docs/metrics.md), and
 [observability guide](docs/observability.md).
 
 ## Evaluate and cite
