@@ -12,7 +12,11 @@ from urllib.parse import urlparse
 from .alarms import derive_alarms
 from .health import HealthEngine
 from .incidents import IncidentController, IncidentType
-from .metrics import render_metrics
+from .metrics import (
+    OPENMETRICS_CONTENT_TYPE,
+    negotiate_metrics_content_type,
+    render_metrics,
+)
 from .models import utc_now
 from .progression import ProgressionEngine
 from .quality import QualityEngine
@@ -69,7 +73,7 @@ class Application:
             "assets": payload_assets,
         }
 
-    def metrics(self) -> str:
+    def metrics(self, openmetrics: bool = False) -> str:
         now, assets, progression, health, recovery, alarms = self._snapshot()
         return render_metrics(
             assets,
@@ -78,6 +82,7 @@ class Application:
             alarm_count=len(alarms),
             incident_count=len(self.incidents.list()),
             now=now,
+            openmetrics=openmetrics,
         )
 
     @staticmethod
@@ -108,7 +113,11 @@ class GridPulseHandler(BaseHTTPRequestHandler):
         elif path == "/api/v1/telemetry":
             self._json(APP.telemetry())
         elif path == "/metrics":
-            self._text(APP.metrics(), "text/plain; version=0.0.4; charset=utf-8")
+            content_type = negotiate_metrics_content_type(self.headers.get("Accept"))
+            self._text(
+                APP.metrics(openmetrics=content_type == OPENMETRICS_CONTENT_TYPE),
+                content_type,
+            )
         elif path == "/api/v1/incidents":
             self._json({"incidents": [
                 {"asset_id": item.asset_id, "kind": item.kind.value}

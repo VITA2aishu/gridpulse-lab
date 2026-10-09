@@ -21,11 +21,13 @@ class ApiTests(unittest.TestCase):
         cls.server.server_close()
         cls.thread.join()
 
-    def raw_request(self, method, path, payload=None):
+    def raw_request(self, method, path, payload=None, headers=None):
         connection = HTTPConnection("127.0.0.1", self.port)
         body = json.dumps(payload) if payload is not None else None
-        headers = {"Content-Type": "application/json"} if body else {}
-        connection.request(method, path, body=body, headers=headers)
+        request_headers = dict(headers or {})
+        if body:
+            request_headers.setdefault("Content-Type", "application/json")
+        connection.request(method, path, body=body, headers=request_headers)
         response = connection.getresponse()
         content = response.read()
         status = response.status
@@ -68,7 +70,7 @@ class ApiTests(unittest.TestCase):
         status, content_type, content = self.raw_request("GET", "/metrics")
         text = content.decode()
         self.assertEqual(200, status)
-        self.assertIn("text/plain", content_type)
+        self.assertEqual("text/plain; version=0.0.4; charset=utf-8", content_type)
         self.assertIn("gridpulse_telemetry_age_seconds", text)
         self.assertIn("gridpulse_processing_lag_seconds", text)
         self.assertIn("gridpulse_active_alarms", text)
@@ -78,6 +80,28 @@ class ApiTests(unittest.TestCase):
         self.assertIn("gridpulse_health_score", text)
         self.assertIn("gridpulse_health_state", text)
         self.assertIn('asset_id="aurora-1"', text)
+        self.assertNotIn("# EOF", text)
+
+    def test_metrics_endpoint_negotiates_openmetrics(self):
+        status, content_type, content = self.raw_request(
+            "GET", "/metrics", headers={"Accept": "application/openmetrics-text"}
+        )
+        text = content.decode()
+        self.assertEqual(200, status)
+        self.assertEqual(
+            "application/openmetrics-text; version=1.0.0; charset=utf-8",
+            content_type,
+        )
+        self.assertIn("gridpulse_telemetry_age_seconds", text)
+        self.assertTrue(text.endswith("# EOF\n"))
+
+    def test_metrics_endpoint_keeps_plain_text_for_wildcard_accept(self):
+        status, content_type, content = self.raw_request(
+            "GET", "/metrics", headers={"Accept": "*/*"}
+        )
+        self.assertEqual(200, status)
+        self.assertEqual("text/plain; version=0.0.4; charset=utf-8", content_type)
+        self.assertNotIn("# EOF", content.decode())
 
     def test_create_and_clear_incident(self):
         status, _ = self.request("POST", "/api/v1/incidents", {

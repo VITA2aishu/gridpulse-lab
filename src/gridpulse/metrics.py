@@ -1,4 +1,4 @@
-"""Prometheus text exporter for GridPulse telemetry health."""
+"""Prometheus and OpenMetrics text exporter for GridPulse telemetry health."""
 
 from __future__ import annotations
 
@@ -7,6 +7,46 @@ from datetime import datetime
 from .health import HealthResult
 from .lag import processing_lag_seconds
 from .models import AssetTelemetry, Quality
+
+PROMETHEUS_CONTENT_TYPE = "text/plain; version=0.0.4; charset=utf-8"
+OPENMETRICS_MEDIA_TYPE = "application/openmetrics-text"
+OPENMETRICS_CONTENT_TYPE = "application/openmetrics-text; version=1.0.0; charset=utf-8"
+
+
+def _accept_quality(media_type: str, accept: str | None) -> float:
+    """Return the strongest q-value an ``Accept`` header gives a media type.
+
+    A missing header or a media type that is not listed means the type was not
+    explicitly requested and scores 0.
+    """
+    best = 0.0
+    for item in (accept or "").split(","):
+        parts = [part.strip() for part in item.split(";")]
+        if parts[0].lower() != media_type:
+            continue
+        quality = 1.0
+        for parameter in parts[1:]:
+            name, _, value = parameter.partition("=")
+            if name.strip().lower() == "q":
+                try:
+                    quality = float(value)
+                except ValueError:
+                    quality = 0.0
+        best = max(best, quality)
+    return best
+
+
+def negotiate_metrics_content_type(accept: str | None) -> str:
+    """Choose an exposition content type for an HTTP ``Accept`` header.
+
+    OpenMetrics is served only when a client explicitly lists it with a
+    q-value at least as high as ``text/plain``. A missing header, wildcards,
+    or any other value keeps the Prometheus 0.0.4 plain-text default.
+    """
+    openmetrics = _accept_quality(OPENMETRICS_MEDIA_TYPE, accept)
+    if openmetrics and openmetrics >= _accept_quality("text/plain", accept):
+        return OPENMETRICS_CONTENT_TYPE
+    return PROMETHEUS_CONTENT_TYPE
 
 
 def _escape(value: str) -> str:
@@ -27,8 +67,14 @@ def render_metrics(
     alarm_count: int,
     incident_count: int,
     now: datetime,
+    *,
+    openmetrics: bool = False,
 ) -> str:
-    """Render a compact Prometheus 0.0.4-compatible metrics payload."""
+    """Render a compact metrics payload.
+
+    The default output is Prometheus 0.0.4 text. With ``openmetrics=True`` the
+    payload gains the ``# EOF`` terminator required by the OpenMetrics text
+    format; the gauge metric families are already compatible with both."""
     lines = [
         "# HELP gridpulse_active_alarms Number of active derived alarms.",
         "# TYPE gridpulse_active_alarms gauge",
@@ -104,4 +150,7 @@ def render_metrics(
                 status=state,
             ))
 
-    return "\n".join(lines) + "\n"
+    text = "\n".join(lines) + "\n"
+    if openmetrics:
+        text += "# EOF\n"
+    return text
